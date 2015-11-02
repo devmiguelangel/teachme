@@ -1,0 +1,23 @@
+1.  Setup y Base de Datos
+1.1.  Instalacion y configuracion del proyecto
+- /etc/hosts
+192.168.10.10   teachme.app
+
+- homestead edit
+sites:
+    - map: teachme.app
+      to: /home/vagrant/Code/teachme/public
+
+- mysql -uhomestead -p
+create database teachme;
+
+- .env
+DB_DATABASE=teachme
+
+php artisan migrate:install
+
+
+1.2.  Creacion de las migraciones de nuestra aplicacion
+
+2.
+3.
