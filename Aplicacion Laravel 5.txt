@@ -18,6 +18,75 @@ php artisan migrate:install
 
 
 1.2.  Creacion de las migraciones de nuestra aplicacion
+- Control de versiones de base de datos
+- Definir tablas con POO en vez de SQL
+- Compatible con los diferentes motores
+- Ideales para trabajar en equipo
+
+php artisan make:model Entities/Ticket --migration
+- database/migrations/2015_11_02_235039_create_tickets_table.php
+public function up()
+{
+    Schema::create('tickets', function (Blueprint $table) {
+        $table->increments('id');
+
+        $table->string('title', 140);
+        $table->enum('status', ['open', 'closed']);
+        $table->integer('user_id')->unsigned();
+
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users');
+    });
+}
+
+php artisan make:model Entities/TicketVote --migration
+- database/migrations/2015_11_02_235651_create_ticket_votes_table.php
+public function up()
+{
+    Schema::create('ticket_votes', function (Blueprint $table) {
+        $table->increments('id');
+
+        $table->integer('user_id')->unsigned();
+        $table->integer('ticket_id')->unsigned();
+
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users');
+        $table->foreign('ticket_id')->references('id')->on('tickets');
+    });
+}
+
+- php artisan make:model Entities/TicketComment -m
+- database/migrations/2015_11_03_000128_create_ticket_comments_table.php
+public function up()
+{
+    Schema::create('ticket_comments', function (Blueprint $table) {
+        $table->increments('id');
+
+        $table->mediumText('comment');
+        $table->string('link')->nullable();
+        $table->integer('user_id')->unsigned();
+        $table->integer('ticket_id')->unsigned();
+
+        $table->timestamps();
+
+        $table->foreign('user_id')->references('id')->on('users');
+        $table->foreign('ticket_id')->references('id')->on('tickets');
+    });
+}
+
+php artisan migrate
+
+
+4 Migración para la tabla de comentarios.mp4
+5 Creación del usuario administrador.mp4
+6 Uso de faker para cargar decenas de registros.mp4
+7 Vaciar tablas que tengan restricciones de llaves foráneas.mp4
+8 Uso de herencia para reusar métodos.mp4
+9 Seeders con llaves foráneas.mp4
+10 Seeders para votos y comentarios.mp4
+11 Estándares para PHP.mp4
 
 2.
 3.
