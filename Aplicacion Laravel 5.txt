@@ -79,14 +79,68 @@ public function up()
 php artisan migrate
 
 
-4 Migración para la tabla de comentarios.mp4
-5 Creación del usuario administrador.mp4
-6 Uso de faker para cargar decenas de registros.mp4
-7 Vaciar tablas que tengan restricciones de llaves foráneas.mp4
-8 Uso de herencia para reusar métodos.mp4
-9 Seeders con llaves foráneas.mp4
-10 Seeders para votos y comentarios.mp4
-11 Estándares para PHP.mp4
+1.3.  Creacion del usuario administrador
+php artisan app:name Teachme
+
+php artisan make:seeder UserTableSeeder
+
+- database/seeds/UserTableSeeder.php
+public function run()
+{
+    $this->createAdmin();
+}
+
+private function createAdmin()
+{
+    User::create([
+        'name'      => 'Miguel MG',
+        'email'     => 'mmamani@coboser.com',
+        'password'  => Hash::make('secret')
+    ]);
+}
+
+- database/seeds/DatabaseSeeder.php
+public function run()
+{
+    Model::unguard();
+
+    $this->call(UserTableSeeder::class);
+
+    Model::reguard();
+}
+
+php artisan db:seed
+
+
+1.4.  Uso de faker para cargar decenas de registros
+- database/seeds/UserTableSeeder.php
+public function run()
+{
+    $this->createAdmin();
+    $this->createUsers(50);
+}
+
+private function createUsers($number = 1)
+{
+    $faker = Faker::create();
+
+    for ($i = 1; $i <= $number; $i++) {
+        User::create([
+            'name'      => $faker->name,
+            'email'     => $faker->unique()->email,
+            'password'  => Hash::make('secret')
+        ]);
+    }
+}
+
+php artisan migrate:refresh --seed
+
+
+1.5.  Vaciar tablas que tengan restricciones de llaves foraneas
+1.6.  Uso de herencia para reusar metodos
+1.7.  Seeders con llaves foraneas
+1.8.  Seeders para votos y comentarios
+1.9.  Estandares para PHP
 
 2.
 3.
