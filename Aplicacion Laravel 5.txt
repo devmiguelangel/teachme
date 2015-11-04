@@ -137,7 +137,161 @@ php artisan migrate:refresh --seed
 
 
 1.5.  Vaciar tablas que tengan restricciones de llaves foraneas
+- database/seeds/DatabaseSeeder.php
+public function run()
+{
+    Model::unguard();
+
+    $this->truncateTables([
+        'users',
+        'password_resets',
+        'tickets',
+        'ticket_votes',
+        'ticket_comments',
+    ]);
+
+    $this->call(UserTableSeeder::class);
+
+    Model::reguard();
+}
+
+private function truncateTables(array $tables)
+{
+    $this->checkForeignKeys(false);
+
+    foreach ($tables as $table) {
+        DB::table($table)->truncate();
+    }
+
+    $this->checkForeignKeys(true);
+}
+
+private function checkForeignKeys($check)
+{
+    $check = $check ? 1 : 0;
+
+    DB::statement('SET foreign_key_checks = ' . $check . ';');
+}
+
+php artisan db:seed
+
+- database/migrations/2015_11_02_235651_create_ticket_votes_table.php
+public function up()
+{
+    Schema::create('ticket_votes', function (Blueprint $table) {
+        ...
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
+    });
+}
+
+- database/migrations/2015_11_03_000128_create_ticket_comments_table.php
+public function up()
+{
+    Schema::create('ticket_comments', function (Blueprint $table) {
+        ...
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
+    });
+}
+
+php artisan migrate:refresh --seed
+
+
 1.6.  Uso de herencia para reusar metodos
+- database/seeds/BaseSeeder.php
+abstract class BaseSeeder extends Seeder
+{
+    protected function createMultiple($total, array $customValues = [])
+    {
+        for ($i = 1; $i <= $total; $i++) {
+            $this->create($customValues);
+        }
+    }
+
+    abstract public function getModel();
+    abstract public function getDummyData(Generator $faker);
+
+    protected function create(array $customValues = [])
+    {
+        $values = $this->getDummyData(Faker::create());
+        $values = array_merge($values, $customValues);
+
+        $this->getModel()->create($values);
+    }
+}
+
+- database/seeds/UserTableSeeder.php
+class UserTableSeeder extends BaseSeeder
+{
+
+    public function getModel()
+    {
+        return new User();
+    }
+
+    public function getDummyData(Generator $faker)
+    {
+        return [
+            'name'      => $faker->name,
+            'email'     => $faker->unique()->email,
+            'password'  => Hash::make('secret')
+        ];
+    }
+
+    public function run()
+    {
+        $this->createAdmin();
+        $this->createMultiple(44);
+    }
+
+    public function createAdmin()
+    {
+        $this->create([
+            'name'      => 'Miguel MG',
+            'email'     => 'mmamani@coboser.com',
+            'password'  => Hash::make('secret')
+        ]);
+    }
+}
+
+- database/seeds/TicketTableSeeder.php
+class TicketTableSeeder extends BaseSeeder
+{
+
+    public function getModel()
+    {
+        return new Ticket();
+    }
+
+    public function getDummyData(Generator $faker)
+    {
+        return [
+            'title'   => $faker->sentence(),
+            'status'  => $faker->randomElement(['open', 'open', 'closed']),
+            'user_id' => 1
+        ];
+    }
+
+    public function run()
+    {
+        $this->createMultiple(50);
+    }
+}
+
+- database/seeds/DatabaseSeeder.php
+public function run()
+{
+    ...
+
+    $this->call(TicketTableSeeder::class);
+}
+
+php artisan db:seed
+
+
 1.7.  Seeders con llaves foraneas
 1.8.  Seeders para votos y comentarios
 1.9.  Estandares para PHP

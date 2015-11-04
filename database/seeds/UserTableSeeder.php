@@ -1,12 +1,27 @@
 <?php
 
+use Faker\Generator;
 use Teachme\Entities\User;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Faker\Factory as Faker;
 
-class UserTableSeeder extends Seeder
+
+class UserTableSeeder extends BaseSeeder
 {
+
+    public function getModel()
+    {
+        return new User();
+    }
+
+    public function getDummyData(Generator $faker)
+    {
+        return [
+            'name'      => $faker->name,
+            'email'     => $faker->unique()->email,
+            'password'  => Hash::make('secret')
+        ];
+    }
+
     /**
      * Run the database seeds.
      *
@@ -15,28 +30,16 @@ class UserTableSeeder extends Seeder
     public function run()
     {
         $this->createAdmin();
-        $this->createUsers(50);
+        $this->createMultiple(44);
     }
 
-    private function createAdmin()
+    public function createAdmin()
     {
-        User::create([
+        $this->create([
             'name'      => 'Miguel MG',
             'email'     => 'mmamani@coboser.com',
             'password'  => Hash::make('secret')
         ]);
     }
 
-    private function createUsers($number = 1)
-    {
-        $faker = Faker::create();
-
-        for ($i = 1; $i <= $number; $i++) {
-            User::create([
-                'name'      => $faker->name,
-                'email'     => $faker->unique()->email,
-                'password'  => Hash::make('secret')
-            ]);
-        }
-    }
 }
