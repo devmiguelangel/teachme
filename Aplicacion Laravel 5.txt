@@ -403,8 +403,90 @@ public function run()
     ...
 }
 
+composer dump-autoload
+
+php artisan db:seed
+
 
 1.9.  Estandares para PHP
+- http://www.php-fig.org/
+- http://cs.sensiolabs.org/
 
-2.
+
+2.  Desarrollo del prototipo
+2.1.  Rutas y Controladores
+- app/Http/routes.php
+Route::get('/', [
+    'as'   => 'ticket.latest',
+    'uses' => 'TicketController@latest'
+]);
+
+Route::get('/popular', [
+    'as'   => 'ticket.popular',
+    'uses' => 'TicketController@popular'
+]);
+
+Route::get('/pending', [
+    'as'   => 'ticket.open',
+    'uses' => 'TicketController@open'
+]);
+
+Route::get('/tutorials', [
+    'as'   => 'ticket.closed',
+    'uses' => 'TicketController@closed'
+]);
+
+Route::get('/details/{id}', [
+    'as'   => 'ticket.details',
+    'uses' => 'TicketController@details'
+]);
+
+php artisan make:controller TicketController --plain
+
+- app/Http/Controllers/TicketController.php
+class TicketController extends Controller
+{
+    public function latest()
+    {
+        dd('Latest');
+    }
+
+    public function popular()
+    {
+        dd('Popular');
+    }
+
+    public function open()
+    {
+        dd('Open');
+    }
+
+    public function closed()
+    {
+        dd('Close');
+    }
+
+    public function details($id)
+    {
+        dd('Details: ' . $id);
+    }
+}
+
+
+2.2.  Diferencias entre Backend y Frontend
+2.3.  Integrando el frontend al proyecto
+2.4.  Creando layouts e integrando Laravel Collective
+2.5.  Extender la funcionalidad del framework
+2.6.  Creando un componente para generar HTML
+2.7.  Paginas dinamicas de lista y detalles
+2.8.  Relacionar objetos con el ORM Eloquent
+2.9.  Uso del componente de traducciones
+2.10. Login y Registro
+2.11. Crear un grupo de rutas y protegerlas con un Middleware
+2.12. Rutas de tipo POST y Formularios
+2.13. Funcionalidad para crear solicitudes
+2.14. Funcionalidad para votar (y quitar voto)
+2.15. Funcionalidad para agregar comentarios
+
+
 3.

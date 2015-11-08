@@ -11,6 +11,31 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('/', [
+    'as'   => 'ticket.latest',
+    'uses' => 'TicketController@latest'
+]);
+
+Route::get('/popular', [
+    'as'   => 'ticket.popular',
+    'uses' => 'TicketController@popular'
+]);
+
+Route::get('/pending', [
+    'as'   => 'ticket.open',
+    'uses' => 'TicketController@open'
+]);
+
+Route::get('/tutorials', [
+    'as'   => 'ticket.closed',
+    'uses' => 'TicketController@closed'
+]);
+
+Route::get('/details/{id}', [
+    'as'   => 'ticket.details',
+    'uses' => 'TicketController@details'
+]);
+
+/*Route::get('/', function () {
     return view('welcome');
-});
+});*/
