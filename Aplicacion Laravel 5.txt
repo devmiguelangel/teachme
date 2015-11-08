@@ -293,7 +293,117 @@ php artisan db:seed
 
 
 1.7.  Seeders con llaves foraneas
+- database/seeds/BaseSeeder.php
+protected function create(array $customValues = [])
+{
+    $values = $this->getDummyData(Faker::create());
+    $values = array_merge($values, $customValues);
+
+    $this->addToPool($this->getModel()->create($values));
+}
+
+protected function getRandom($model)
+{
+    if (! isset(static::$pool[$model])) {
+        throw new Exception('The collection ' + $model + ' does not exist');
+    }
+
+    return static::$pool[$model]->random();
+}
+
+protected function addToPool($entity)
+{
+    $reflection = new ReflectionClass($entity);
+    $class = $reflection->getShortName();
+
+    if (! isset(static::$pool[$class])) {
+        static::$pool[$class] = new Collection();
+    }
+
+    static::$pool[$class]->add($entity);
+
+    return $entity;
+}
+
+- database/seeds/TicketTableSeeder.php
+public function getDummyData(Generator $faker)
+{
+    return [
+        'title'   => $faker->sentence(),
+        'status'  => $faker->randomElement(['open', 'open', 'closed']),
+        'user_id' => $this->getRandom('User')->id
+    ];
+}
+
+php artisan db:seed
+
+
 1.8.  Seeders para votos y comentarios
+- database/seeds/BaseSeeder.php
+abstract class BaseSeeder extends Seeder
+{
+    protected $total = 50;
+
+    public function run()
+    {
+        $this->createMultiple($this->total);
+    }
+
+    ...
+}
+
+- database/seeds/TicketVoteTableSeeder.php
+class TicketVoteTableSeeder extends BaseSeeder
+{
+    protected $total = 250;
+
+    public function getModel()
+    {
+        return new TicketVote();
+    }
+
+    public function getDummyData(Generator $faker)
+    {
+        return [
+            'user_id'   => $this->getRandom('User')->id,
+            'ticket_id' => $this->getRandom('Ticket')->id
+        ];
+    }
+}
+
+- database/seeds/TicketCommentTableSeeder.php
+class TicketCommentTableSeeder extends BaseSeeder
+{
+    protected $total = 300;
+
+    public function getModel()
+    {
+        return new TicketComment();
+    }
+
+    public function getDummyData(Generator $faker)
+    {
+        return [
+            'comment'   => $faker->paragraph(),
+            'link'      => $faker->randomElement(['', '', $faker->url]),
+            'user_id'   => $this->getRandom('User')->id,
+            'ticket_id' => $this->getRandom('Ticket')->id
+        ];
+    }
+}
+
+- database/seeds/DatabaseSeeder.php
+public function run()
+{
+    ...
+    $this->call(UserTableSeeder::class);
+    $this->call(TicketTableSeeder::class);
+    $this->call(TicketVoteTableSeeder::class);
+    $this->call(TicketCommentTableSeeder::class);
+    ...
+}
+
+
 1.9.  Estandares para PHP
 
 2.

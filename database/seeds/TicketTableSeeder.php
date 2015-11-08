@@ -21,13 +21,4 @@ class TicketTableSeeder extends BaseSeeder
         ];
     }
 
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
-        $this->createMultiple(50);
-    }
 }
