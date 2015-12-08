@@ -491,11 +491,51 @@ composer require laravelcollective/html
 ],
 
 
-2.5.  Extender la funcionalidad del framework
-2.6.  Creando un componente para generar HTML
-2.7.  Paginas dinamicas de lista y detalles
-2.8.  Relacionar objetos con el ORM Eloquent
-2.9.  Uso del componente de traducciones
+2.3.  Extender la funcionalidad del framework
+- resources/views/partials/menu.blade.php
+...
+
+- app/Components/HtmlBuilder.php
+use Collective\Html\HtmlBuilder as CollectiveHtmlBuilder;
+
+class HtmlBuilder extends CollectiveHtmlBuilder
+{
+    public function menu()
+    {
+        return view('partials.menu');
+    }
+}
+
+- app/Providers/HtmlServiceProvider.php
+use Collective\Html\HtmlServiceProvider as CollectiveHtmlServiceProvider;
+use Teachme\Components\HtmlBuilder;
+
+class HtmlServiceProvider extends CollectiveHtmlServiceProvider
+{
+    protected function registerHtmlBuilder()
+    {
+        $this->app->singleton('html', function ($app) {
+            return new HtmlBuilder($app['url']);
+        });
+   }
+}
+
+- config/app.php
+'providers' => [
+    ...
+    Teachme\Providers\HtmlServiceProvider::class,
+    ...
+],
+
+- resources/views/layout.blade.php
+{!! Html::menu() !!}
+
+
+2.4.  Creando un componente para generar HTML
+2.5.  Paginas dinamicas de lista y detalles
+2.6.  Relacionar objetos con el ORM Eloquent
+2.7.  Uso del componente de traducciones
+
 2.10. Login y Registro
 2.11. Crear un grupo de rutas y protegerlas con un Middleware
 2.12. Rutas de tipo POST y Formularios

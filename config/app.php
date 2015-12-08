@@ -144,11 +144,12 @@ return [
         Teachme\Providers\AuthServiceProvider::class,
         Teachme\Providers\EventServiceProvider::class,
         Teachme\Providers\RouteServiceProvider::class,
+        Teachme\Providers\HtmlServiceProvider::class,
 
         /*
          * Vendor Service Providers
          */
-        Collective\Html\HtmlServiceProvider::class,
+        // Collective\Html\HtmlServiceProvider::class,
 
     ],
 
