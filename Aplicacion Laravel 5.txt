@@ -473,9 +473,24 @@ class TicketController extends Controller
 }
 
 
-2.2.  Diferencias entre Backend y Frontend
-2.3.  Integrando el frontend al proyecto
-2.4.  Creando layouts e integrando Laravel Collective
+2.2.  Creando layouts e integrando Laravel Collective
+composer require laravelcollective/html
+
+- config/app.php
+'providers' => [
+    ...
+    Collective\Html\HtmlServiceProvider::class,
+    ...
+],
+
+'aliases' => [
+    ...
+    'Form'      => Collective\Html\FormFacade::class,
+    'Html'      => Collective\Html\HtmlFacade::class,
+    ...
+],
+
+
 2.5.  Extender la funcionalidad del framework
 2.6.  Creando un componente para generar HTML
 2.7.  Paginas dinamicas de lista y detalles

@@ -11,7 +11,7 @@ class TicketController extends Controller
 {
     public function latest()
     {
-        dd('Latest');
+        return view('tickets.list');
     }
 
     public function popular()
@@ -31,6 +31,6 @@ class TicketController extends Controller
 
     public function details($id)
     {
-        dd('Details: ' . $id);
+        return view('tickets.details');
     }
 }
