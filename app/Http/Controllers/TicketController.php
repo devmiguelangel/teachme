@@ -2,9 +2,6 @@
 
 namespace Teachme\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use Teachme\Http\Requests;
 use Teachme\Http\Controllers\Controller;
 
 class TicketController extends Controller
@@ -16,17 +13,17 @@ class TicketController extends Controller
 
     public function popular()
     {
-        dd('Popular');
+        return view('tickets.list');
     }
 
     public function open()
     {
-        dd('Open');
+        return view('tickets.list');
     }
 
     public function closed()
     {
-        dd('Close');
+        return view('tickets.list');
     }
 
     public function details($id)

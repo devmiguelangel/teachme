@@ -10,7 +10,7 @@ class HtmlServiceProvider extends CollectiveHtmlServiceProvider
     protected function registerHtmlBuilder()
     {
         $this->app->singleton('html', function ($app) {
-            return new HtmlBuilder($app['url']);
+            return new HtmlBuilder($app['config'], $app['view'], $app['url']);
         });
     }
 }
