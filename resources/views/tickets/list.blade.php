@@ -5,14 +5,14 @@
             <div class="col-md-10 col-md-offset-1">
                 <div class="row">
                     <h1>
-                        Solicitudes Populares
+                        {{ trans('teachme.title.' . request()->route()->getName()) }}
                         <a href="#" class="btn btn-primary">
                             Nueva solicitud
                         </a>
                     </h1>
 
                     <p class="label label-info news">
-                        Hay {{ $tickets->total() }} Solicitudes Populares
+                        {{ trans_choice('teachme.total.' . request()->route()->getName(), $tickets->total()) }}
                     </p>
 
                     @foreach($tickets as $ticket)

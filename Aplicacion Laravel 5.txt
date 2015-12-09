@@ -728,6 +728,60 @@ public function user()
 
 
 2.7.  Uso del componente de traducciones
+- config/app.php
+return [
+    ...
+    'locale' => 'es',
+
+- resources/lang/es/teachme.php
+return [
+    'title' => [
+        'ticket' => [
+            'latest'  => 'Solicitudes Recientes',
+            'popular' => 'Solicitudes Populares',
+            'open'    => 'Solicitudes Abiertas',
+            'closed'  => 'Tutoriales',
+        ],
+    ],
+
+    'total' => [
+        'ticket' => [
+            'latest'  => '{0} No existen solicitudes recientes'
+                        . '|{1} Solo existe una solicitud reciente'
+                        . '|[2,Inf] Existen :count solicitudes recientes',
+            'popular' => '{0} No existen solicitudes populares'
+                        . '|{1} Solo existe una solicitud popular'
+                        . '|[2,Inf] Existen :count solicitudes populares',
+            'open'    => '{0} No existen solicitudes abiertas'
+                        . '|{1} Solo existe una solicitud abierta'
+                        . '|[2,Inf] Existen :count solicitudes abiertas',
+            'closed'  => '{0} No existen tutoriales'
+                        . '|{1} Solo existe un tutorial'
+                        . '|[2,Inf] Existen :count tutoriales',
+        ],
+    ],
+
+    'status' => [
+        'open'   => 'Abierta',
+        'closed' => 'Finalizada',
+    ]
+];
+
+- resources/views/tickets/partials/status.blade.php
+<span {!! Html::classes(['label label-info absolute', 'highlight' => $ticket->open]) !!}>
+    {{ trans('teachme.status.' . $ticket->status) }}
+</span>
+
+- resources/views/tickets/list.blade.php
+<h1>
+    {{ trans('teachme.title.' . request()->route()->getName()) }}
+    ...
+</h1>
+
+<p class="label label-info news">
+    {{ trans_choice('teachme.total.' . request()->route()->getName(), $tickets->total()) }}
+</p>
+
 
 2.8. Login y Registro
 2.9. Crear un grupo de rutas y protegerlas con un Middleware
