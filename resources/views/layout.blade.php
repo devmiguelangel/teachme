@@ -38,7 +38,6 @@
 
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
-
                     {!! Html::menu('teachme.items') !!}
 
                     <ul class="nav navbar-nav navbar-right">

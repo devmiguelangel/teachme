@@ -2,13 +2,16 @@
 
 namespace Teachme\Http\Controllers;
 
+use Teachme\Entities\Ticket;
 use Teachme\Http\Controllers\Controller;
 
 class TicketController extends Controller
 {
     public function latest()
     {
-        return view('tickets.list');
+        $tickets = Ticket::orderBy('created_at', 'desc')->paginate(15);
+
+        return view('tickets.list', compact('tickets'));
     }
 
     public function popular()
@@ -28,6 +31,8 @@ class TicketController extends Controller
 
     public function details($id)
     {
-        return view('tickets.details');
+        $ticket = Ticket::where('id', $id)->first();
+
+        return view('tickets.details', compact('ticket'));
     }
 }

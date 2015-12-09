@@ -532,7 +532,150 @@ class HtmlServiceProvider extends CollectiveHtmlServiceProvider
 
 
 2.4.  Creando un componente para generar HTML
+- config/teachme.php
+return [
+    'items' => [
+        'ticket.latest'  => 'Recientes',
+        'ticket.popular' => 'Populares',
+        'ticket.open'    => 'Abiertas',
+        'ticket.closed'  => 'Finalizadas',
+    ],
+];
+
+- app/Components/HtmlBuilder.php
+public function __construct(Config $config, View $view, UrlGenerator $url)
+{
+    $this->config = $config;
+    $this->view   = $view;
+    $this->url    = $url;
+
+    parent::__construct($this->url);
+}
+
+public function menu($items)
+{
+    if (! is_array($items)) {
+        $items = $this->config->get($items, []);
+    }
+
+    return $this->view->make('partials.menu', compact('items'));
+}
+
+public function classes(array $classes)
+{
+    $html = '';
+
+    foreach ($classes as $name => $bool) {
+        if (is_int($name)) {
+            $name = $bool;
+            $bool = true;
+        }
+
+        if ($bool) {
+            $html .= $name . ' ';
+        }
+    }
+
+    if (! empty($html)) {
+        return 'class="' . trim($html) . '"';
+    }
+
+    return '';
+}
+
+- app/Providers/HtmlServiceProvider.php
+protected function registerHtmlBuilder()
+{
+    $this->app->singleton('html', function ($app) {
+        return new HtmlBuilder($app['config'], $app['view'], $app['url']);
+    });
+}
+
+- resources/views/layout.blade.php
+{!! Html::menu('teachme.items') !!}
+
+- resources/views/partials/menu.blade.php
+<ul class="nav navbar-nav">
+    @foreach($items as $route => $text)
+        <li role="presentation" {!! Html::classes(['active' => Route::is($route)]) !!}>
+            <a href="{{ route($route) }}">{{ $text }}</a>
+        </li>
+    @endforeach
+</ul>
+
+
 2.5.  Paginas dinamicas de lista y detalles
+- resources/views/tickets/list.blade.php
+<p class="label label-info news">
+    Hay {{ $tickets->total() }} Solicitudes Populares
+</p>
+
+@foreach($tickets as $ticket)
+    @include('tickets.partials.item', compact('ticket'))
+@endforeach
+
+{!! $tickets->render() !!}
+
+- resources/views/tickets/partials/status.blade.php
+<span {!! Html::classes(['label label-info absolute', 'highlight' => $ticket->open]) !!}>
+    {{ $ticket->status }}
+</span>
+
+- resources/views/tickets/partials/item.blade.php
+<div data-id="25" class="well well-sm request">
+    <h4 class="list-title">
+        {{ $ticket->title }}
+
+        @include('tickets.partials.status', compact('ticket'))
+
+    </h4>
+    <p>
+        <a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
+            <span class="votes-count">12 votos</span>
+            - <span class="comments-count">0 comentarios</span>.
+        </a>
+
+        <p class="date-t">
+            <span class="glyphicon glyphicon-time"></span>
+            {{ $ticket->created_at->format('d/m/y h:i a') }}
+        </p>
+    </p>
+</div>
+
+- resources/views/tickets/details.blade.php
+<h2 class="title-show">
+    {{ $ticket->title }}
+
+    @include('tickets.partials.status')
+</h2>
+
+<p class="date-t">
+    <span class="glyphicon glyphicon-time"></span>
+    {{ $ticket->created_at->format('d/m/y h:i a') }}
+</p>
+
+- app/Entities/Ticket.php
+public function getOpenAttribute()
+{
+    return $this->status == 'open';
+}
+
+- app/Http/Controllers/TicketController.php
+public function latest()
+{
+    $tickets = Ticket::orderBy('created_at', 'desc')->paginate(15);
+
+    return view('tickets.list', compact('tickets'));
+}
+
+public function details($id)
+{
+    $ticket = Ticket::where('id', $id)->first();
+
+    return view('tickets.details', compact('ticket'));
+}
+
+
 2.6.  Relacionar objetos con el ORM Eloquent
 2.7.  Uso del componente de traducciones
 
