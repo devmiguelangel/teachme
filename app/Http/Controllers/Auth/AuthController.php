@@ -2,7 +2,7 @@
 
 namespace Teachme\Http\Controllers\Auth;
 
-use Teachme\User;
+use Teachme\Entities\User;
 use Validator;
 use Teachme\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -61,5 +61,10 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
+    }
+
+    public function redirectPath()
+    {
+        return '/';
     }
 }

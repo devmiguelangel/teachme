@@ -28,7 +28,7 @@ return [
     |
     */
 
-    'model' => Teachme\User::class,
+    'model' => Teachme\Entities\User::class,
 
     /*
     |--------------------------------------------------------------------------

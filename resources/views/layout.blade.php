@@ -41,13 +41,25 @@
                     {!! Html::menu('teachme.items') !!}
 
                     <ul class="nav navbar-nav navbar-right">
+                    @if(auth()->check())
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Duilio Palacios <span class="caret"></span></a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                {{ auth()->user()->name }} <span class="caret"></span>
+                            </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="http://teachme.dev/auth/logout">Logout</a></li>
+                                <li><a href="{{ route('auth.logout') }}">Logout</a></li>
                             </ul>
                         </li>
+                    @else
+                        <li>
+                            <a href="{{ route('auth.get.login') }}">Login</a>
+                        </li>
+                        <li>
+                            <a href="{{ url('auth/register') }}">Registrate</a>
+                        </li>
+                    @endif
                     </ul>
+
                 </div>
             </div>
         </div>

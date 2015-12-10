@@ -23,14 +23,18 @@ class TicketController extends Controller
 
     public function open()
     {
-        $tickets = Ticket::orderBy('created_at', 'desc')->paginate(15);
+        $tickets = Ticket::where('status', 'open')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         return view('tickets.list', compact('tickets'));
     }
 
     public function closed()
     {
-        $tickets = Ticket::orderBy('created_at', 'desc')->paginate(15);
+        $tickets = Ticket::where('status', 'closed')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         return view('tickets.list', compact('tickets'));
     }

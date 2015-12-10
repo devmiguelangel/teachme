@@ -784,6 +784,63 @@ return [
 
 
 2.8. Login y Registro
+- app/Http/routes.php
+// Authentication routes
+Route::get('auth/login', [
+    'as'   => 'auth.get.login',
+    'uses' => 'Auth\AuthController@getLogin'
+]);
+
+Route::post('auth/login', [
+    'as'   => 'auth.post.login',
+    'uses' => 'Auth\AuthController@postLogin'
+]);
+
+Route::get('auth/logout', [
+    'as'   => 'auth.logout',
+    'uses' => 'Auth\AuthController@getLogout'
+]);
+
+// Registration routes
+Route::get('auth/register', 'Auth\AuthController@getRegister');
+Route::post('auth/register', 'Auth\AuthController@postRegister');
+
+- config/auth.php
+return [
+    ...
+    'model' => Teachme\Entities\User::class,
+
+- app/Http/Controllers/Auth/AuthController.php
+use Teachme\Entities\User;
+...
+
+public function redirectPath()
+{
+    return '/';
+}
+
+- resources/views/layout.blade.php
+<ul class="nav navbar-nav navbar-right">
+  @if(auth()->check())
+      <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+              {{ auth()->user()->name }} <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+              <li><a href="{{ route('auth.logout') }}">Logout</a></li>
+          </ul>
+      </li>
+  @else
+      <li>
+          <a href="{{ route('auth.get.login') }}">Login</a>
+      </li>
+      <li>
+          <a href="{{ url('auth/register') }}">Registrate</a>
+      </li>
+  @endif
+</ul>
+
+
 2.9. Crear un grupo de rutas y protegerlas con un Middleware
 2.10. Rutas de tipo POST y Formularios
 2.11. Funcionalidad para crear solicitudes
