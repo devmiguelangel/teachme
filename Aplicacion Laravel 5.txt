@@ -842,6 +842,20 @@ public function redirectPath()
 
 
 2.9. Crear un grupo de rutas y protegerlas con un Middleware
+- app/Http/routes.php
+Route::group(['middleware' => 'auth'], function() {
+    Route::get('/ticket/request', [
+        'as'   => 'ticket.create',
+        'uses' => 'TicketController@create'
+    ]);
+});
+
+- app/Http/Controllers/TicketController.php
+public function create() {
+    return '[Form create ticket]';
+}
+
+
 2.10. Rutas de tipo POST y Formularios
 2.11. Funcionalidad para crear solicitudes
 2.12. Funcionalidad para votar (y quitar voto)

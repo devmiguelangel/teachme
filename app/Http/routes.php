@@ -60,3 +60,10 @@ Route::get('/details/{id}', [
 /*Route::get('/', function () {
     return view('welcome');
 });*/
+
+Route::group(['middleware' => 'auth'], function() {
+    Route::get('/ticket/request', [
+        'as'   => 'ticket.create',
+        'uses' => 'TicketController@create'
+    ]);
+});

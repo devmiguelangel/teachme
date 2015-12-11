@@ -45,4 +45,8 @@ class TicketController extends Controller
 
         return view('tickets.details', compact('ticket'));
     }
+
+    public function create() {
+        return '[Form create ticket]';
+    }
 }
