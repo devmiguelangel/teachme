@@ -65,9 +65,14 @@ Route::group(['middleware' => 'auth'], function() {
     /*
      * Crear Solicitud
      */
-    Route::get('/ticket/request', [
+    Route::get('/ticket/new', [
         'as'   => 'ticket.create',
         'uses' => 'TicketController@create'
+    ]);
+
+    Route::post('/ticket/create', [
+        'as'   => 'ticket.store',
+        'uses' => 'TicketController@store'
     ]);
 
     /*

@@ -2,6 +2,8 @@
 
 namespace Teachme\Http\Controllers;
 
+use Illuminate\Auth\Guard;
+use Illuminate\Http\Request;
 use Teachme\Entities\Ticket;
 use Teachme\Http\Controllers\Controller;
 
@@ -47,6 +49,31 @@ class TicketController extends Controller
     }
 
     public function create() {
-        return '[Form create ticket]';
+        return view('tickets.create');
+    }
+
+    public function store(Request $request, Guard $auth)
+    {
+        $this->validate($request, [
+            'title' => 'required|max:140',
+        ]);
+
+        $data = $request->all();
+
+        /*$ticket = new Ticket();
+
+        $ticket->title   = $data['title'];
+        $ticket->status  = 'open';
+        $ticket->user_id = $auth->user()->id;
+
+        $ticket->save();*/
+
+        $ticket = $auth->user()->tickets()->create([
+            'title'   => $data['title'],
+            'status'  => 'open',
+            'user_id' => $auth->user()->id,
+        ]);
+
+        return redirect()->route('ticket.details', ['id' => $ticket->id]);
     }
 }

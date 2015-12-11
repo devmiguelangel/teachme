@@ -6,7 +6,7 @@
                 <div class="row">
                     <h1>
                         {{ trans('teachme.title.' . request()->route()->getName()) }}
-                        <a href="#" class="btn btn-primary">
+                        <a href="{{ route('ticket.create') }}" class="btn btn-primary">
                             Nueva solicitud
                         </a>
                     </h1>

@@ -925,6 +925,101 @@ Route::group(['middleware' => 'auth'], function() {
 
 
 2.11. Funcionalidad para crear solicitudes
+- app/Http/routes.php
+Route::group(['middleware' => 'auth'], function() {
+    /*
+     * Crear Solicitud
+     */
+    Route::get('/ticket/new', [
+        'as'   => 'ticket.create',
+        'uses' => 'TicketController@create'
+    ]);
+
+    Route::post('/ticket/create', [
+        'as'   => 'ticket.store',
+        'uses' => 'TicketController@store'
+    ]);
+
+    ...
+});
+
+- resources/views/tickets/list.blade.php
+<h1>
+    {{ trans('teachme.title.' . request()->route()->getName()) }}
+    <a href="{{ route('ticket.create') }}" class="btn btn-primary">
+        Nueva solicitud
+    </a>
+</h1>
+
+- resources/views/tickets/create.blade.php
+@if(count($errors) > 0)
+    @include('partials.errors')
+@endif
+
+{!! Form::open(['route' => 'ticket.store', 'method' => 'POST']) !!}
+    <div class="form-group">
+        {!! Form::label('title', 'Título') !!}
+        {!! Form::textArea('title', old('title'), ['class' => 'form-control', 'size' => '30x5']) !!}
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-thumbs-up"></span> Enviar Solicitud
+    </button>
+{!! Form::close() !!}
+
+- resources/lang/es/validation.php
+'attributes' => [
+    'title' => 'Título',
+],
+
+- app/Http/Controllers/TicketController.php
+public function create() {
+    return view('tickets.create');
+}
+
+public function store(Request $request, Guard $auth)
+{
+    $this->validate($request, [
+        'title' => 'required|max:140',
+    ]);
+
+    $data = $request->all();
+
+    /*$ticket = new Ticket();
+
+    $ticket->title   = $data['title'];
+    $ticket->status  = 'open';
+    $ticket->user_id = $auth->user()->id;
+
+    $ticket->save();*/
+
+    $ticket = $auth->user()->tickets()->create([
+        'title'   => $data['title'],
+        'status'  => 'open',
+        'user_id' => $auth->user()->id,
+    ]);
+
+    return redirect()->route('ticket.details', ['id' => $ticket->id]);
+}
+
+- app/Entities/Ticket.php
+protected $fillable = [
+    'title', 'status', 'user_id',
+];
+
+public function author()
+{
+    return $this->belongsTo(User::class, 'user_id', 'id');
+}
+
+- resources/views/tickets/details.blade.php
+<p class="date-t">
+    <span class="glyphicon glyphicon-time"></span>
+    {{ $ticket->created_at->format('d/m/Y h:i a') }}
+    - {{ $ticket->author->name }}
+</p>
+
+
 2.12. Funcionalidad para votar (y quitar voto)
 2.13. Funcionalidad para agregar comentarios
 
