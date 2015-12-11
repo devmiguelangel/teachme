@@ -24,27 +24,31 @@
                     @endforeach
                 </p>
 
-                <form method="POST" action="http://teachme.dev/votar/5" accept-charset="UTF-8"><input name="_token" type="hidden" value="VBIv3EWDAIQuLRW0cGwNQ4OsDKoRhnK2fAEF6UbQ">
-                    <!--button type="submit" class="btn btn-primary">Votar</button-->
+                {!! Form::open(['route' => ['vote.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
                     <button type="submit" class="btn btn-primary">
                         <span class="glyphicon glyphicon-thumbs-up"></span> Votar
                     </button>
-                </form>
+                {!! Form::close() !!}
+
+                {!! Form::open(['route' => ['vote.destroy', 'ticket_id' => $ticket->id], 'method' => 'DELETE']) !!}
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-thumbs-up"></span> Quitar Voto
+                    </button>
+                {!! Form::close() !!}
 
                 <h3>Nuevo Comentario</h3>
 
-
-                <form method="POST" action="http://teachme.dev/comentar/5" accept-charset="UTF-8"><input name="_token" type="hidden" value="VBIv3EWDAIQuLRW0cGwNQ4OsDKoRhnK2fAEF6UbQ">
+                {!! Form::open(['route' => ['comment.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
                     <div class="form-group">
                         <label for="comment">Comentarios:</label>
-                        <textarea rows="4" class="form-control" name="comment" cols="50" id="comment"></textarea>
+                        {!! Form::textArea('comment', old('comment'), ['class' => 'form-control', 'size' => '50x4']) !!}
                     </div>
                     <div class="form-group">
                         <label for="link">Enlace:</label>
-                        <input class="form-control" name="link" type="text" id="link">
+                        {!! Form::text('link', old('link'), ['class' => 'form-control']) !!}
                     </div>
                     <button type="submit" class="btn btn-primary">Enviar comentario</button>
-                </form>
+                {!! Form::close() !!}
 
                 <h3>Comentarios ({{ $ticket->comments->count() }})</h3>
 

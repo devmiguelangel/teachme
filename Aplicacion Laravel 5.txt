@@ -857,6 +857,73 @@ public function create() {
 
 
 2.10. Rutas de tipo POST y Formularios
+php artisan make:controller VoteController
+php artisan make:controller CommentController
+
+- app/Http/routes.php
+Route::group(['middleware' => 'auth'], function() {
+    /*
+     * Crear Solicitud
+     */
+    Route::get('/ticket/request', [
+        'as'   => 'ticket.create',
+        'uses' => 'TicketController@create'
+    ]);
+
+    /*
+     * Crear voto
+     */
+    Route::post('/vote/create/{ticket_id}', [
+        'as'   => 'vote.store',
+        'uses' => 'VoteController@store'
+    ]);
+
+    /*
+     * Quitar voto
+     */
+    Route::delete('/vote/delete/{ticket_id}', [
+        'as'   => 'vote.destroy',
+        'uses' => 'VoteController@destroy'
+    ]);
+
+    /*
+     * Crear Comentario
+     */
+    Route::post('/comment/create/{ticket_id}', [
+        'as'   => 'comment.store',
+        'uses' => 'CommentController@store'
+    ]);
+
+});
+
+- resources/views/tickets/details.blade.php
+{!! Form::open(['route' => ['vote.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
+    <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-thumbs-up"></span> Votar
+    </button>
+{!! Form::close() !!}
+
+{!! Form::open(['route' => ['vote.destroy', 'ticket_id' => $ticket->id], 'method' => 'DELETE']) !!}
+    <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-thumbs-up"></span> Quitar Voto
+    </button>
+{!! Form::close() !!}
+
+<h3>Nuevo Comentario</h3>
+
+{!! Form::open(['route' => ['comment.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
+    <div class="form-group">
+        <label for="comment">Comentarios:</label>
+        {!! Form::textArea('comment', old('comment'), ['class' => 'form-control', 'size' => '50x4']) !!}
+    </div>
+    <div class="form-group">
+        <label for="link">Enlace:</label>
+        {!! Form::text('link', old('link'), ['class' => 'form-control']) !!}
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar comentario</button>
+{!! Form::close() !!}
+
+
 2.11. Funcionalidad para crear solicitudes
 2.12. Funcionalidad para votar (y quitar voto)
 2.13. Funcionalidad para agregar comentarios
