@@ -68,7 +68,7 @@ class TicketController extends Controller
 
         $ticket->save();*/
 
-        $ticket = $auth->user()->tickets()->create([
+        $ticket = $auth->user()->votes()->create([
             'title'   => $data['title'],
             'status'  => 'open',
             'user_id' => $auth->user()->id,

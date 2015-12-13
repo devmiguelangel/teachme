@@ -993,7 +993,7 @@ public function store(Request $request, Guard $auth)
 
     $ticket->save();*/
 
-    $ticket = $auth->user()->tickets()->create([
+    $ticket = $auth->user()->votes()->create([
         'title'   => $data['title'],
         'status'  => 'open',
         'user_id' => $auth->user()->id,
@@ -1021,6 +1021,54 @@ public function author()
 
 
 2.12. Funcionalidad para votar (y quitar voto)
+- resources/views/tickets/details.blade.php
+@if(! auth()->user()->hasVote($ticket))
+    {!! Form::open(['route' => ['vote.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
+    <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-thumbs-up"></span> Votar
+    </button>
+    {!! Form::close() !!}
+@else
+    {!! Form::open(['route' => ['vote.destroy', 'ticket_id' => $ticket->id], 'method' => 'DELETE']) !!}
+    <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-thumbs-down"></span> Quitar Voto
+    </button>
+    {!! Form::close() !!}
+@endif
+
+- app/Entities/User.php
+public function votes()
+{
+    return $this->belongsToMany(Ticket::class, 'ticket_votes', 'user_id', 'ticket_id');
+}
+
+public function hasVote(Ticket $ticket)
+{
+    return $this->votes()->where('ticket_id', $ticket->id)->count();
+}
+
+- app/Http/Controllers/VoteController.php
+public function store(Request $request, $ticket_id)
+{
+    /** @var User $user */
+    $user = $request->user();
+
+    $user->votes()->attach($ticket_id);
+
+    return redirect()->back();
+}
+
+public function destroy(Request $request, $ticket_id)
+{
+    /** @var User $user */
+    $user = $request->user();
+
+    $user->votes()->detach($ticket_id);
+
+    return redirect()->back();
+}
+
+
 2.13. Funcionalidad para agregar comentarios
 
 

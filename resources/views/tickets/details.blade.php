@@ -25,17 +25,19 @@
                     @endforeach
                 </p>
 
-                {!! Form::open(['route' => ['vote.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
+                @if(! auth()->user()->hasVote($ticket))
+                    {!! Form::open(['route' => ['vote.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
                     <button type="submit" class="btn btn-primary">
                         <span class="glyphicon glyphicon-thumbs-up"></span> Votar
                     </button>
-                {!! Form::close() !!}
-
-                {!! Form::open(['route' => ['vote.destroy', 'ticket_id' => $ticket->id], 'method' => 'DELETE']) !!}
+                    {!! Form::close() !!}
+                @else
+                    {!! Form::open(['route' => ['vote.destroy', 'ticket_id' => $ticket->id], 'method' => 'DELETE']) !!}
                     <button type="submit" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-thumbs-up"></span> Quitar Voto
+                        <span class="glyphicon glyphicon-thumbs-down"></span> Quitar Voto
                     </button>
-                {!! Form::close() !!}
+                    {!! Form::close() !!}
+                @endif
 
                 <h3>Nuevo Comentario</h3>
 

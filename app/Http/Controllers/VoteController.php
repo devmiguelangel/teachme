@@ -4,6 +4,7 @@ namespace Teachme\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Teachme\Entities\User;
 use Teachme\Http\Requests;
 use Teachme\Http\Controllers\Controller;
 
@@ -38,7 +39,12 @@ class VoteController extends Controller
      */
     public function store(Request $request, $ticket_id)
     {
-        dd('Voto - ' . $ticket_id);
+        /** @var User $user */
+        $user = $request->user();
+
+        $user->votes()->attach($ticket_id);
+
+        return redirect()->back();
     }
 
     /**
@@ -81,8 +87,13 @@ class VoteController extends Controller
      * @param $ticket_id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($ticket_id)
+    public function destroy(Request $request, $ticket_id)
     {
-        dd('Quitar voto - ' . $ticket_id);
+        /** @var User $user */
+        $user = $request->user();
+
+        $user->votes()->detach($ticket_id);
+
+        return redirect()->back();
     }
 }
