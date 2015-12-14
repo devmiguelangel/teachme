@@ -1455,6 +1455,127 @@ public function removeVote(Ticket $ticket, User $user)
 
 
 3.6.  Funcionalidad para votar con AJAX
+- resources/views/layout.blade.php
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js"></script>
+{!! Html::script('/assets/js/app.js') !!}
+
+- resources/views/tickets/partials/item.blade.php
+<a href="#" data-id="{{ $ticket->id }}" data-vote="1" id="vote-{{ $ticket->id }}"
+   {!! Html::classes(['btn btn-primary vote', 'hide' => auth()->user()->hasVote($ticket)]) !!}
+   title="Votar por este tutorial">
+    <span class="glyphicon glyphicon-thumbs-up"></span> Votar
+</a>
+
+<a href="#" data-id="{{ $ticket->id }}" data-vote="0" id="unvote-{{ $ticket->id }}"
+   {!! Html::classes(['btn btn-hight vote', 'hide' => ! auth()->user()->hasVote($ticket)]) !!}
+   title="Quitar el voto de este tutorial">
+    <span class="glyphicon glyphicon-thumbs-down"></span> Quitar voto
+</a>
+
+<a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
+    <span class="votes-count">{{ $ticket->num_votes }} votos</span>
+    - <span class="comments-count">{{ $ticket->num_comments }} comentarios</span>.
+</a>
+
+- resources/views/tickets/list.blade.php
+{!! Form::open(['id' => 'form-vote', 'route' => ['vote.store', 'ticket_id' => ':id'], 'method' => 'POST']) !!}
+{!! Form::close() !!}
+
+{!! Form::open(['id' => 'form-unvote', 'route' => ['vote.destroy', 'ticket_id' => ':id'], 'method' => 'DELETE']) !!}
+{!! Form::close() !!}
+
+- public/assets/js/app.js
+$(document).ready(function() {
+    $('.vote').click(function(e) {
+        e.preventDefault();
+
+        var vote   = $(this).data('vote');
+        var id     = $(this).data('id');
+        var form   = null;
+        var button = '#';
+
+        if (vote == 1) {
+            form   = $('#form-vote');
+            button = '#unvote-';
+        } else if (vote == 0) {
+            form = $('#form-unvote');
+            button = '#vote-';
+        }
+
+        button += id;
+
+        var action = form.prop('action');
+        action     = action.replace(':id', id);
+
+        $(this).addClass('hide');
+
+        $.post(action, $(form).serialize(), function(response) {
+            console.log($(this).closest(button));
+            $(button).removeClass('hide');
+
+        }).fail(function() {
+            $(this).removeClass('hide');
+
+            console.log('Error');
+        });
+        
+    });
+});
+
+- app/Repositories/VoteRepository.php
+public function addVote(Ticket $ticket, User $user)
+{
+    if ($user->hasVote($ticket)) {
+        return false;
+    }
+
+    $user->votes()->attach($ticket->id);
+
+    return true;
+}
+
+public function removeVote(Ticket $ticket, User $user)
+{
+    if (! $user->hasVote($ticket)) {
+        return false;
+    }
+
+    $user->votes()->detach($ticket->id);
+
+    return true;
+}
+
+- app/Http/Controllers/VoteController.php
+public function store(Request $request, $ticket_id)
+{
+    $ticket = $this->ticketRepository->getData($ticket_id);
+    $user   = $request->user();
+
+    $success = $this->repository->addVote($ticket, $user);
+
+    if ($request->ajax()) {
+        return response()->json(['success' => $success]);
+    }
+
+    return redirect()->back();
+}
+
+public function destroy(Request $request, $ticket_id)
+{
+    $ticket = $this->ticketRepository->getData($ticket_id);
+    $user   = $request->user();
+
+    $success = $this->repository->removeVote($ticket, $user);
+
+    if ($request->ajax()) {
+        return response()->json(['success' => $success]);
+    }
+
+    return redirect()->back();
+}
+
+
 3.7.  Mensajes de Alert con Javascript y Bootstrap
 3.8.  Eliminar voto con AJAX y refactorizacion
 3.9.  View Composers (refactorizacion)

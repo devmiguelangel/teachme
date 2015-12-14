@@ -20,18 +20,32 @@ class VoteRepository extends BaseRepository
     /**
      * @param Ticket $ticket
      * @param User $user
+     * @return bool
      */
     public function addVote(Ticket $ticket, User $user)
     {
+        if ($user->hasVote($ticket)) {
+            return false;
+        }
+
         $user->votes()->attach($ticket->id);
+
+        return true;
     }
 
     /**
      * @param Ticket $ticket
      * @param User $user
+     * @return bool
      */
     public function removeVote(Ticket $ticket, User $user)
     {
+        if (! $user->hasVote($ticket)) {
+            return false;
+        }
+
         $user->votes()->detach($ticket->id);
+
+        return true;
     }
 }

@@ -27,4 +27,10 @@
             </div>
         </div>
     </div>
+
+    {!! Form::open(['id' => 'form-vote', 'route' => ['vote.store', 'ticket_id' => ':id'], 'method' => 'POST']) !!}
+    {!! Form::close() !!}
+
+    {!! Form::open(['id' => 'form-unvote', 'route' => ['vote.destroy', 'ticket_id' => ':id'], 'method' => 'DELETE']) !!}
+    {!! Form::close() !!}
 @endsection

@@ -59,7 +59,11 @@ class VoteController extends Controller
         $ticket = $this->ticketRepository->getData($ticket_id);
         $user   = $request->user();
 
-        $this->repository->addVote($ticket, $user);
+        $success = $this->repository->addVote($ticket, $user);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => $success]);
+        }
 
         return redirect()->back();
     }
@@ -109,7 +113,11 @@ class VoteController extends Controller
         $ticket = $this->ticketRepository->getData($ticket_id);
         $user   = $request->user();
 
-        $this->repository->removeVote($ticket, $user);
+        $success = $this->repository->removeVote($ticket, $user);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => $success]);
+        }
 
         return redirect()->back();
     }
