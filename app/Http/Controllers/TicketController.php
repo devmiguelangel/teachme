@@ -4,64 +4,52 @@ namespace Teachme\Http\Controllers;
 
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
-use Teachme\Entities\Ticket;
 use Teachme\Http\Controllers\Controller;
+use Teachme\Repositories\TicketRepository;
 
 class TicketController extends Controller
 {
     /**
-     * @return Ticket
+     * @var TicketRepository
      */
-    protected function ticketList()
+    private $repository;
+
+    public function __construct(TicketRepository $repository)
     {
-        return Ticket::selectRaw(
-            'tickets.*,' .
-            '(SELECT count(*) FROM ticket_comments WHERE ticket_comments.ticket_id = tickets.id) as num_comments,' .
-            '(SELECT count(*) FROM ticket_votes WHERE ticket_votes.ticket_id = tickets.id) as num_votes'
-        )->with('author');
+        $this->repository = $repository;
     }
 
     public function latest()
     {
-        $tickets = $this->ticketList()
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $tickets = $this->repository->getLatest();
 
         return view('tickets.list', compact('tickets'));
     }
 
     public function popular()
     {
-        $tickets = $this->ticketList()
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $tickets = $this->repository->getPopular();
 
         return view('tickets.list', compact('tickets'));
     }
 
     public function open()
     {
-        $tickets = $this->ticketList()
-            ->where('status', 'open')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $tickets = $this->repository->getOpen();
 
         return view('tickets.list', compact('tickets'));
     }
 
     public function closed()
     {
-        $tickets = $this->ticketList()
-            ->where('status', 'closed')
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $tickets = $this->repository->getClosed();
 
         return view('tickets.list', compact('tickets'));
     }
 
     public function details($id)
     {
-        $ticket = Ticket::where('id', $id)->first();
+        $ticket = $this->repository->getTicket($id);
 
         return view('tickets.details', compact('ticket'));
     }
