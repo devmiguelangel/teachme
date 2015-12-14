@@ -2,10 +2,19 @@
 
 namespace Teachme\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
 use Teachme\Entities\Ticket;
 
-class TicketRepository
+class TicketRepository extends BaseRepository
 {
+    /**
+     * @return Model
+     */
+    public function getModel()
+    {
+        return new Ticket();
+    }
+
     protected function ticketList()
     {
         return Ticket::selectRaw(
@@ -47,7 +56,8 @@ class TicketRepository
 
     public function getTicket($id)
     {
-        return Ticket::where('id', $id)->firstOrFail();
+        return $this->getData($id)
+            ->with(['voters', 'comments.user'])
+            ->firstOrFail();
     }
-
 }

@@ -1287,7 +1287,7 @@ class TicketRepository
 
     public function getTicket($id)
     {
-        return Ticket::where('id', $id)->firstOrFail();
+        return Ticket::with(['voters', 'comments.user'])->where('id', $id)->firstOrFail();
     }
 
 }
@@ -1340,6 +1340,29 @@ public function details($id)
 
 
 3.4.  Repositorio base (repaso de clases abstractas y herencia)
+- app/Repositories/BaseRepository.php
+abstract class BaseRepository
+{
+    /**
+     * @return Model
+     */
+    abstract public function getModel();
+
+    public function getData($id)
+    {
+        return $this->getModel()->where('id', $id);
+    }
+}
+
+- app/Repositories/TicketRepository.php
+public function getTicket($id)
+{
+    return $this->getData($id)
+        ->with(['voters', 'comments.user'])
+        ->firstOrFail();
+}
+
+
 3.5.  Uso de repositorios para persistir datos
 3.6.  Funcionalidad para votar con AJAX
 3.7.  Mensajes de Alert con Javascript y Bootstrap
