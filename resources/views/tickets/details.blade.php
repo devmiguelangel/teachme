@@ -39,7 +39,18 @@
                     {!! Form::close() !!}
                 @endif
 
+
                 <h3>Nuevo Comentario</h3>
+
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }} !!!
+                    </div>
+                @endif
+
+                @if($errors->count() > 0)
+                    @include('partials.errors')
+                @endif
 
                 {!! Form::open(['route' => ['comment.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
                     <div class="form-group">
@@ -59,6 +70,9 @@
                     <div class="well well-sm">
                         <p><strong>{{ $comment->user->name }}</strong></p>
                         <p>{{ $comment->comment }}</p>
+                        <p>
+                            <a href="{{ $comment->link }}" rel="nofollow" target="_blank">{{ $comment->link }}</a>
+                        </p>
                         <p class="date-t">
                             <span class="glyphicon glyphicon-time"></span>
                             {{ $comment->created_at->format('d/m/Y h:i a') }}

@@ -52,6 +52,11 @@ class TicketController extends Controller
         return view('tickets.create');
     }
 
+    /**
+     * @param Request $request
+     * @param Guard $auth
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, Guard $auth)
     {
         $this->validate($request, [
@@ -68,10 +73,9 @@ class TicketController extends Controller
 
         $ticket->save();*/
 
-        $ticket = $auth->user()->votes()->create([
+        $ticket = $auth->user()->tickets()->create([
             'title'   => $data['title'],
             'status'  => 'open',
-            'user_id' => $auth->user()->id,
         ]);
 
         return redirect()->route('ticket.details', ['id' => $ticket->id]);

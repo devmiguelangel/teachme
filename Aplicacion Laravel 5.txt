@@ -972,6 +972,12 @@ Route::group(['middleware' => 'auth'], function() {
     'title' => 'Título',
 ],
 
+- app/Entities/User.php
+public function tickets()
+{
+    return $this->hasMany(Ticket::class, 'user_id', 'id');
+}
+
 - app/Http/Controllers/TicketController.php
 public function create() {
     return view('tickets.create');
@@ -993,10 +999,9 @@ public function store(Request $request, Guard $auth)
 
     $ticket->save();*/
 
-    $ticket = $auth->user()->votes()->create([
+    $ticket = $auth->user()->tickets()->create([
         'title'   => $data['title'],
         'status'  => 'open',
-        'user_id' => $auth->user()->id,
     ]);
 
     return redirect()->route('ticket.details', ['id' => $ticket->id]);
@@ -1070,6 +1075,86 @@ public function destroy(Request $request, $ticket_id)
 
 
 2.13. Funcionalidad para agregar comentarios
+- app/Entities/TicketComment.php
+protected $fillable = ['comment', 'link', ];
+
+- resources/lang/es/validation.php
+'attributes' => [
+    ...
+    'comment' => 'Comentario',
+    'link'    => 'Enlace',
+],
+
+- app/Http/Controllers/CommentController.php
+public function store(Request $request, $ticket_id)
+{
+    $this->validate($request, [
+        'comment' => 'required|max:255',
+        'link'    => 'url',
+    ]);
+
+    $comment = new TicketComment($request->only(['comment', 'link']));
+    $comment->user_id = $request->user()->id;
+
+    $ticket = Ticket::where('id', $ticket_id)->first();
+
+    $ticket->comments()->save($comment);
+
+    return redirect()->back()
+        ->with(['success' => 'El comentario fue registrado con exito']);
+}
+
+- resources/views/tickets/details.blade.php
+<h3>Nuevo Comentario</h3>
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }} !!!
+    </div>
+@endif
+
+@if($errors->count() > 0)
+    @include('partials.errors')
+@endif
+
+{!! Form::open(['route' => ['comment.store', 'ticket_id' => $ticket->id], 'method' => 'POST']) !!}
+    <div class="form-group">
+        <label for="comment">Comentarios:</label>
+        {!! Form::textArea('comment', old('comment'), ['class' => 'form-control', 'size' => '50x4']) !!}
+    </div>
+    <div class="form-group">
+        <label for="link">Enlace:</label>
+        {!! Form::text('link', old('link'), ['class' => 'form-control']) !!}
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar comentario</button>
+{!! Form::close() !!}
+
+<h3>Comentarios ({{ $ticket->comments->count() }})</h3>
+
+@foreach($ticket->comments as $comment)
+    <div class="well well-sm">
+        <p><strong>{{ $comment->user->name }}</strong></p>
+        <p>{{ $comment->comment }}</p>
+        <p>
+            <a href="{{ $comment->link }}" rel="nofollow" target="_blank">{{ $comment->link }}</a>
+        </p>
+        <p class="date-t">
+            <span class="glyphicon glyphicon-time"></span>
+            {{ $comment->created_at->format('d/m/Y h:i a') }}
+        </p>
+    </div>
+@endforeach
 
 
-3.
+3.  Optimizacion y componentes extra
+3.1.  Los ORMs y el problema de N+1
+3.2.  Subconsultas con SQL y Eloquent (selectRaw)
+3.3.  Introduccion al patron repositorio
+3.4.  Repositorio base (repaso de clases abstractas y herencia)
+3.5.  Uso de repositorios para persistir datos
+3.6.  Funcionalidad para votar con AJAX
+3.7.  Mensajes de Alert con Javascript y Bootstrap
+3.8.  Eliminar voto con AJAX y refactorizacion
+3.9.  View Composers (refactorizacion)
+3.10. Actualiza tus proyectos de Laravel 5.0 a Laravel 5.1
+
+4.  
