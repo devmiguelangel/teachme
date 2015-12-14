@@ -14,6 +14,6 @@ abstract class BaseRepository
 
     public function getData($id)
     {
-        return $this->getModel()->where('id', $id);
+        return $this->getModel()->where('id', $id)->firstOrFail();
     }
 }

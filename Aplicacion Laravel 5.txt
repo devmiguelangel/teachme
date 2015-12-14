@@ -1364,6 +1364,96 @@ public function getTicket($id)
 
 
 3.5.  Uso de repositorios para persistir datos
+- app/Http/Controllers/TicketController.php
+public function store(Request $request, Guard $auth)
+{
+    $this->validate($request, [
+        'title' => 'required|max:140',
+    ]);
+
+    $data = $request->all();
+
+    $ticket = $this->repository->openNewTicket($auth->user(), $data);
+
+    return redirect()->route('ticket.details', ['id' => $ticket->id]);
+}
+
+- app/Repositories/TicketRepository.php
+public function getTicket($id)
+{
+    return Ticket::with(['voters', 'comments.user'])
+        ->where('id', $id)
+        ->firstOrFail();
+}
+
+public function openNewTicket(User $user, $data)
+{
+    return $user->tickets()->create([
+        'title'   => $data['title'],
+        'status'  => 'open',
+    ]);
+}
+
+- app/Http/Controllers/CommentController.php
+public function store(Request $request, $ticket_id)
+{
+    $this->validate($request, [
+        'comment' => 'required|max:255',
+        'link'    => 'url',
+    ]);
+
+    $ticket = $this->ticketRepository->getData($ticket_id);
+    $user   = $request->user();
+    $data   = $request->only(['comment', 'link']);
+
+    $this->repository->createComment($ticket, $user, $data);
+
+    return redirect()->back()
+        ->with(['success' => 'El comentario fue registrado con exito']);
+}
+
+- app/Repositories/CommentRepository.php
+public function createComment(Ticket $ticket, User $user, array $data)
+{
+    $comment = new TicketComment($data);
+    $comment->user_id = $user->id;
+
+    $ticket->comments()->save($comment);
+}
+
+- app/Http/Controllers/VoteController.php
+public function store(Request $request, $ticket_id)
+{
+    $ticket = $this->ticketRepository->getData($ticket_id);
+    $user   = $request->user();
+
+    $this->repository->addVote($ticket, $user);
+
+    return redirect()->back();
+}
+
+public function destroy(Request $request, $ticket_id)
+{
+    $ticket = $this->ticketRepository->getData($ticket_id);
+    $user   = $request->user();
+
+    $this->repository->removeVote($ticket, $user);
+
+    return redirect()->back();
+}
+
+- app/Repositories/VoteRepository.php
+public function addVote(Ticket $ticket, User $user)
+{
+    $user->votes()->attach($ticket->id);
+}
+
+public function removeVote(Ticket $ticket, User $user)
+{
+    $user->votes()->detach($ticket->id);
+}
+
+
 3.6.  Funcionalidad para votar con AJAX
 3.7.  Mensajes de Alert con Javascript y Bootstrap
 3.8.  Eliminar voto con AJAX y refactorizacion

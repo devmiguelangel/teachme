@@ -4,6 +4,7 @@ namespace Teachme\Http\Controllers;
 
 use Illuminate\Auth\Guard;
 use Illuminate\Http\Request;
+use Teachme\Entities\User;
 use Teachme\Http\Controllers\Controller;
 use Teachme\Repositories\TicketRepository;
 
@@ -60,7 +61,7 @@ class TicketController extends Controller
 
     /**
      * @param Request $request
-     * @param Guard $auth
+     * @param Guard|User $auth
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request, Guard $auth)
@@ -71,6 +72,8 @@ class TicketController extends Controller
 
         $data = $request->all();
 
+        $ticket = $this->repository->openNewTicket($auth->user(), $data);
+
         /*$ticket = new Ticket();
 
         $ticket->title   = $data['title'];
@@ -78,11 +81,6 @@ class TicketController extends Controller
         $ticket->user_id = $auth->user()->id;
 
         $ticket->save();*/
-
-        $ticket = $auth->user()->tickets()->create([
-            'title'   => $data['title'],
-            'status'  => 'open',
-        ]);
 
         return redirect()->route('ticket.details', ['id' => $ticket->id]);
     }

@@ -8,9 +8,26 @@ use Teachme\Entities\Ticket;
 use Teachme\Entities\TicketComment;
 use Teachme\Http\Requests;
 use Teachme\Http\Controllers\Controller;
+use Teachme\Repositories\CommentRepository;
+use Teachme\Repositories\TicketRepository;
 
 class CommentController extends Controller
 {
+    /**
+     * @var TicketRepository
+     */
+    private $ticketRepository;
+    /**
+     * @var CommentRepository
+     */
+    private $repository;
+
+    public function __construct(CommentRepository $repository, TicketRepository $ticketRepository)
+    {
+        $this->repository       = $repository;
+        $this->ticketRepository = $ticketRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -45,12 +62,11 @@ class CommentController extends Controller
             'link'    => 'url',
         ]);
 
-        $comment = new TicketComment($request->only(['comment', 'link']));
-        $comment->user_id = $request->user()->id;
+        $ticket = $this->ticketRepository->getData($ticket_id);
+        $user   = $request->user();
+        $data   = $request->only(['comment', 'link']);
 
-        $ticket = Ticket::where('id', $ticket_id)->first();
-
-        $ticket->comments()->save($comment);
+        $this->repository->createComment($ticket, $user, $data);
 
         return redirect()->back()
             ->with(['success' => 'El comentario fue registrado con exito']);

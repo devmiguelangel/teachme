@@ -7,9 +7,26 @@ use Illuminate\Http\Request;
 use Teachme\Entities\User;
 use Teachme\Http\Requests;
 use Teachme\Http\Controllers\Controller;
+use Teachme\Repositories\TicketRepository;
+use Teachme\Repositories\VoteRepository;
 
 class VoteController extends Controller
 {
+    /**
+     * @var VoteRepository
+     */
+    private $repository;
+    /**
+     * @var TicketRepository
+     */
+    private $ticketRepository;
+
+    public function __construct(VoteRepository $repository, TicketRepository $ticketRepository)
+    {
+        $this->repository       = $repository;
+        $this->ticketRepository = $ticketRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -39,10 +56,10 @@ class VoteController extends Controller
      */
     public function store(Request $request, $ticket_id)
     {
-        /** @var User $user */
-        $user = $request->user();
+        $ticket = $this->ticketRepository->getData($ticket_id);
+        $user   = $request->user();
 
-        $user->votes()->attach($ticket_id);
+        $this->repository->addVote($ticket, $user);
 
         return redirect()->back();
     }
@@ -89,10 +106,10 @@ class VoteController extends Controller
      */
     public function destroy(Request $request, $ticket_id)
     {
-        /** @var User $user */
-        $user = $request->user();
+        $ticket = $this->ticketRepository->getData($ticket_id);
+        $user   = $request->user();
 
-        $user->votes()->detach($ticket_id);
+        $this->repository->removeVote($ticket, $user);
 
         return redirect()->back();
     }
