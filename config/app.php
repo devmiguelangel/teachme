@@ -150,6 +150,7 @@ return [
          * Vendor Service Providers
          */
         // Collective\Html\HtmlServiceProvider::class,
+        Barryvdh\Debugbar\ServiceProvider::class,
 
     ],
 

@@ -1147,6 +1147,45 @@ public function store(Request $request, $ticket_id)
 
 3.  Optimizacion y componentes extra
 3.1.  Los ORMs y el problema de N+1
+composer require barryvdh/laravel-debugbar
+
+- config/app.php
+Barryvdh\Debugbar\ServiceProvider::class,
+
+php artisan vendor:publish
+
+- app/Http/Controllers/TicketController.php
+public function latest()
+{
+    $tickets = Ticket::with('author')
+        ->orderBy('created_at', 'desc')->paginate(15);
+
+    return view('tickets.list', compact('tickets'));
+}
+
+- resources/views/tickets/partials/item.blade.php
+<p>
+    {{--<a href="#" class="btn btn-primary btn-vote" title="Votar por este tutorial">
+        <span class="glyphicon glyphicon-thumbs-up"></span> Votar
+    </a>
+
+    <a href="#" class="btn btn-hight btn-unvote hide">
+        <span class="glyphicon glyphicon-thumbs-down"></span> No votar
+    </a>--}}
+
+    {{--<a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
+        <span class="votes-count">{{ $ticket->voters->count() }} votos</span>
+        - <span class="comments-count">{{ $ticket->comments->count() }} comentarios</span>.
+    </a>--}}
+
+    <p class="date-t">
+        <span class="glyphicon glyphicon-time"></span>
+        {{ $ticket->created_at->format('d/m/Y h:i a') }}
+        By {{ $ticket->author->name }}
+    </p>
+</p>
+
+
 3.2.  Subconsultas con SQL y Eloquent (selectRaw)
 3.3.  Introduccion al patron repositorio
 3.4.  Repositorio base (repaso de clases abstractas y herencia)

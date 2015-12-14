@@ -11,7 +11,8 @@ class TicketController extends Controller
 {
     public function latest()
     {
-        $tickets = Ticket::orderBy('created_at', 'desc')->paginate(15);
+        $tickets = Ticket::with('author')
+            ->orderBy('created_at', 'desc')->paginate(15);
 
         return view('tickets.list', compact('tickets'));
     }

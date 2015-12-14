@@ -14,14 +14,15 @@
             <span class="glyphicon glyphicon-thumbs-down"></span> No votar
         </a>--}}
 
-        <a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
+        {{--<a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
             <span class="votes-count">{{ $ticket->voters->count() }} votos</span>
             - <span class="comments-count">{{ $ticket->comments->count() }} comentarios</span>.
-        </a>
+        </a>--}}
 
         <p class="date-t">
             <span class="glyphicon glyphicon-time"></span>
             {{ $ticket->created_at->format('d/m/Y h:i a') }}
+            By {{ $ticket->author->name }}
         </p>
     </p>
 </div>
