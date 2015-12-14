@@ -1187,6 +1187,61 @@ public function latest()
 
 
 3.2.  Subconsultas con SQL y Eloquent (selectRaw)
+- app/Http/Controllers/TicketController.php
+protected function ticketList()
+{
+    return Ticket::selectRaw(
+        'tickets.*,' .
+        '(SELECT count(*) FROM ticket_comments WHERE ticket_comments.ticket_id = tickets.id) as num_comments,' .
+        '(SELECT count(*) FROM ticket_votes WHERE ticket_votes.ticket_id = tickets.id) as num_votes'
+    )->with('author');
+}
+
+public function latest()
+{
+    $tickets = $this->ticketList()
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
+
+    return view('tickets.list', compact('tickets'));
+}
+
+public function popular()
+{
+    $tickets = $this->ticketList()
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
+
+    return view('tickets.list', compact('tickets'));
+}
+
+public function open()
+{
+    $tickets = $this->ticketList()
+        ->where('status', 'open')
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
+
+    return view('tickets.list', compact('tickets'));
+}
+
+public function closed()
+{
+    $tickets = $this->ticketList()
+        ->where('status', 'closed')
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
+
+    return view('tickets.list', compact('tickets'));
+}
+
+- resources/views/tickets/partials/item.blade.php
+<a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
+    <span class="votes-count">{{ $ticket->num_votes }} votos</span>
+    - <span class="comments-count">{{ $ticket->num_comments }} comentarios</span>.
+</a>
+
+
 3.3.  Introduccion al patron repositorio
 3.4.  Repositorio base (repaso de clases abstractas y herencia)
 3.5.  Uso de repositorios para persistir datos
