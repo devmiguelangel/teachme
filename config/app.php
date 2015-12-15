@@ -145,6 +145,7 @@ return [
         Teachme\Providers\EventServiceProvider::class,
         Teachme\Providers\RouteServiceProvider::class,
         Teachme\Providers\HtmlServiceProvider::class,
+        Teachme\Providers\ViewComposerServiceProvider::class,
 
         /*
          * Vendor Service Providers

@@ -39,7 +39,6 @@ $(document).ready(function() {
 
         $.post(action, $(form).serialize(), function(response) {
             $(ticket).find(button).removeClass('hide');
-            console.log(response);
 
             var votes = response.votes;
             votes     += votes == 1 ? ' voto' : ' votos';

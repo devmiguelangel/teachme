@@ -1719,6 +1719,64 @@ public function destroy(Request $request, $ticket_id)
 
 
 3.8.  Eliminar voto con AJAX y refactorizacion
+php artisan make:provider ViewComposerServiceProvider
+
+- config/app.php
+Teachme\Providers\ViewComposerServiceProvider::class,
+
+- app/Providers/ViewComposerServiceProvider.php
+public function boot()
+{
+    view()->composer(
+        ['tickets.list'],
+        TicketListComposer::class
+    );
+}
+
+- app/Http/ViewComposers/TicketListComposer.php
+class TicketListComposer
+{
+    /**
+     * @var Route
+     */
+    private $route;
+
+    public function __construct(Route $route)
+    {
+        $this->route = $route;
+    }
+
+    public function compose(View $view)
+    {
+        $view->title = trans('teachme.title.' . $this->route->getName());
+        $view->total = trans_choice(
+            'teachme.total.ticket',
+            $view->tickets->total(),
+            ['title' => strtolower($view->title)]
+        );
+    }
+}
+
+- resources/lang/es/teachme.php
+'total' => [
+    'ticket' => '{0} No existen :title'
+        . '|{1} Solo existe una :title'
+        . '|[2,Inf] Existen :count :title',
+],
+
+- resources/views/tickets/list.blade.php
+<h1>
+    {{ $title }}
+    <a href="{{ route('ticket.create') }}" class="btn btn-primary">
+        Nueva solicitud
+    </a>
+</h1>
+
+<p class="label label-info news">
+    {{ $total }}
+</p>
+
+
 3.9.  View Composers (refactorizacion)
 3.10. Actualiza tus proyectos de Laravel 5.0 a Laravel 5.1
 
