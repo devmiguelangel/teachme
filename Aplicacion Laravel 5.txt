@@ -1718,7 +1718,7 @@ public function destroy(Request $request, $ticket_id)
 }
 
 
-3.8.  Eliminar voto con AJAX y refactorizacion
+3.8.  View Composers (refactorizacion)
 php artisan make:provider ViewComposerServiceProvider
 
 - config/app.php
@@ -1777,7 +1777,49 @@ class TicketListComposer
 </p>
 
 
-3.9.  View Composers (refactorizacion)
-3.10. Actualiza tus proyectos de Laravel 5.0 a Laravel 5.1
+4.  Ejercicios
+4.1. Implementacion del componente Styde_Seeder en nuestro proyecto
+composer require styde/seeder
 
-4.  
+- database/seeds/DatabaseSeeder.php
+class DatabaseSeeder extends BaseSeeder
+{
+    protected $truncate = [
+        'users',
+        'password_resets',
+        'tickets',
+        'ticket_votes',
+        'ticket_comments',
+    ];
+
+    protected $seeders = [
+        'User',
+        'Ticket',
+        'TicketVote',
+        'TicketComment',
+    ];
+}
+
+- database/seeds/TicketTableSeeder.php
+class TicketTableSeeder extends Seeder
+{
+    public function getModel()
+    {
+        return new Ticket();
+    }
+
+    public function getDummyData(Generator $faker, array $customValues = array())
+    {
+        return [
+            'title'   => $faker->sentence(),
+            'status'  => $faker->randomElement(['open', 'open', 'closed']),
+            'user_id' => $this->random('User')->id
+        ];
+    }
+}
+
+
+4.2. Configuracion de base de datos para el entorno de pruebas
+4.3. Desarrollo de pruebas unitarias para la creacion de tickets y recursos
+4.4. Desarrollo del feature de recursos guiado por pruebas unitarias
+4.5. Desarrollo de feature para cerrar tickets con TDD

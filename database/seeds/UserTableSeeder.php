@@ -1,19 +1,19 @@
 <?php
 
 use Faker\Generator;
+use Styde\Seeder\Seeder;
 use Teachme\Entities\User;
 use Illuminate\Support\Facades\Hash;
 
 
-class UserTableSeeder extends BaseSeeder
+class UserTableSeeder extends Seeder
 {
-
     public function getModel()
     {
         return new User();
     }
 
-    public function getDummyData(Generator $faker)
+    public function getDummyData(Generator $faker, array $customValues = array())
     {
         return [
             'name'      => $faker->name,
