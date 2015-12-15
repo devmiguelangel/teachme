@@ -56,13 +56,21 @@ class VoteController extends Controller
      */
     public function store(Request $request, $ticket_id)
     {
-        $ticket = $this->ticketRepository->getData($ticket_id);
+        $ticket = $this->ticketRepository->getTicket($ticket_id);
         $user   = $request->user();
 
         $success = $this->repository->addVote($ticket, $user);
+        $votes   = $ticket->voters->count();
+
+        if ($success) {
+            $votes += 1;
+        }
 
         if ($request->ajax()) {
-            return response()->json(['success' => $success]);
+            return response()->json([
+                'success' => $success,
+                'votes'   => $votes,
+            ]);
         }
 
         return redirect()->back();
@@ -110,13 +118,21 @@ class VoteController extends Controller
      */
     public function destroy(Request $request, $ticket_id)
     {
-        $ticket = $this->ticketRepository->getData($ticket_id);
+        $ticket = $this->ticketRepository->getTicket($ticket_id);
         $user   = $request->user();
 
         $success = $this->repository->removeVote($ticket, $user);
+        $votes   = $ticket->voters->count();
+
+        if ($success) {
+            $votes -= 1;
+        }
 
         if ($request->ajax()) {
-            return response()->json(['success' => $success]);
+            return response()->json([
+                'success' => $success,
+                'votes'   => $votes,
+            ]);
         }
 
         return redirect()->back();

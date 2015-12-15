@@ -1577,6 +1577,147 @@ public function destroy(Request $request, $ticket_id)
 
 
 3.7.  Mensajes de Alert con Javascript y Bootstrap
+- resources/views/layout.blade.php
+...
+{!! Html::style('/assets/css/animate.css') !!}
+...
+{!! Html::script('/assets/js/bootstrap-notify.js') !!}
+{!! Html::script('/assets/js/app.js') !!}
+
+- resources/views/tickets/partials/item.blade.php
+<div data-id="25" class="well well-sm ticket">
+  ...
+  @if(auth()->check())
+      <a href="#" data-id="{{ $ticket->id }}" data-vote="1"
+         {!! Html::classes(['btn btn-primary btn-vote vote', 'hide' => auth()->user()->hasVote($ticket)]) !!}
+         title="Votar por este tutorial">
+          <span class="glyphicon glyphicon-thumbs-up"></span> Votar
+      </a>
+
+      <a href="#" data-id="{{ $ticket->id }}" data-vote="0"
+         {!! Html::classes(['btn btn-hight btn-vote unvote', 'hide' => ! auth()->user()->hasVote($ticket)]) !!}
+         title="Quitar el voto de este tutorial">
+          <span class="glyphicon glyphicon-thumbs-down"></span> Quitar voto
+      </a>
+
+      <a href="{{ route('ticket.details', ['id' => $ticket->id]) }}">
+          <span class="votes-count">{{ $ticket->num_votes }} votos</span>
+          - <span class="comments-count">{{ $ticket->num_comments }} comentarios</span>.
+      </a>
+  @endif
+
+- public/assets/js/app.js
+$(document).ready(function() {
+    $.notifyDefaults({
+        type: 'success',
+        allow_dismiss: false,
+        delay: 5000,
+        timer: 1000,
+        placement: {
+            from: "top",
+            align: "center"
+        },
+        animate: {
+            enter: 'animated fadeInDown',
+            exit: 'animated fadeOutUp'
+        }
+    });
+
+    $('.btn-vote').click(function(e) {
+        e.preventDefault();
+
+        var ticket = $(this).closest('.ticket');
+
+        var vote   = $(this).data('vote');
+        var id     = $(this).data('id');
+        var form   = null;
+        var button = '';
+
+        if (vote == 1) {
+            form   = $('#form-vote');
+            button = '.unvote';
+        } else if (vote == 0) {
+            form = $('#form-unvote');
+            button = '.vote';
+        }
+
+        var action = form.prop('action');
+        action     = action.replace(':id', id);
+
+        $(this).addClass('hide');
+
+        $.post(action, $(form).serialize(), function(response) {
+            $(ticket).find(button).removeClass('hide');
+            console.log(response);
+
+            var votes = response.votes;
+            votes     += votes == 1 ? ' voto' : ' votos';
+
+            $(ticket).find('.votes-count').html(votes);
+
+            $.notify({
+                message: 'Gracias por tu voto'
+            });
+
+        }).fail(function() {
+            $(this).removeClass('hide');
+
+            $.notify({
+                message: 'Oops a ocurrido un error :('
+            }, {
+                type: 'danger'
+            });
+        });
+
+    });
+});
+
+- app/Http/Controllers/VoteController.php
+public function store(Request $request, $ticket_id)
+{
+    $ticket = $this->ticketRepository->getTicket($ticket_id);
+    $user   = $request->user();
+
+    $success = $this->repository->addVote($ticket, $user);
+    $votes   = $ticket->voters->count();
+
+    if ($success) {
+        $votes += 1;
+    }
+
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => $success,
+            'votes'   => $votes,
+        ]);
+    }
+
+    return redirect()->back();
+}
+
+public function destroy(Request $request, $ticket_id)
+{
+    $ticket = $this->ticketRepository->getTicket($ticket_id);
+    $user   = $request->user();
+
+    $success = $this->repository->removeVote($ticket, $user);
+    $votes   = $ticket->voters->count();
+
+    if ($success) {
+        $votes -= 1;
+    }
+
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => $success,
+            'votes'   => $votes,
+        ]);
+    }
+
+    return redirect()->back();
+}
+
+
 3.8.  Eliminar voto con AJAX y refactorizacion
 3.9.  View Composers (refactorizacion)
 3.10. Actualiza tus proyectos de Laravel 5.0 a Laravel 5.1

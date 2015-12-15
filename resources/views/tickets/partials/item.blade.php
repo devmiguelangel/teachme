@@ -1,4 +1,4 @@
-<div data-id="25" class="well well-sm request">
+<div data-id="25" class="well well-sm ticket">
     <h4 class="list-title">
         {{ $ticket->title }}
 
@@ -7,14 +7,14 @@
     </h4>
     <p>
         @if(auth()->check())
-            <a href="#" data-id="{{ $ticket->id }}" data-vote="1" id="vote-{{ $ticket->id }}"
-               {!! Html::classes(['btn btn-primary vote', 'hide' => auth()->user()->hasVote($ticket)]) !!}
+            <a href="#" data-id="{{ $ticket->id }}" data-vote="1"
+               {!! Html::classes(['btn btn-primary btn-vote vote', 'hide' => auth()->user()->hasVote($ticket)]) !!}
                title="Votar por este tutorial">
                 <span class="glyphicon glyphicon-thumbs-up"></span> Votar
             </a>
 
-            <a href="#" data-id="{{ $ticket->id }}" data-vote="0" id="unvote-{{ $ticket->id }}"
-               {!! Html::classes(['btn btn-hight vote', 'hide' => ! auth()->user()->hasVote($ticket)]) !!}
+            <a href="#" data-id="{{ $ticket->id }}" data-vote="0"
+               {!! Html::classes(['btn btn-hight btn-vote unvote', 'hide' => ! auth()->user()->hasVote($ticket)]) !!}
                title="Quitar el voto de este tutorial">
                 <span class="glyphicon glyphicon-thumbs-down"></span> Quitar voto
             </a>
