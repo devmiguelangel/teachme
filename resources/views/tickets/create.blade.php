@@ -13,6 +13,9 @@
                     <div class="form-group">
                         {!! Form::label('title', 'Título') !!}
                         {!! Form::textArea('title', old('title'), ['class' => 'form-control', 'size' => '30x5']) !!}
+
+                        {!! Form::label('resource', 'Recurso') !!}
+                        {!! Form::text('resource', old('resource'), ['class' => 'form-control']) !!}
                     </div>
 
                     <button type="submit" class="btn btn-primary">

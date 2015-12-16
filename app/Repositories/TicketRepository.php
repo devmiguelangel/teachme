@@ -64,9 +64,18 @@ class TicketRepository extends BaseRepository
 
     public function openNewTicket(User $user, $data)
     {
+        $status = 'open';
+
+        if (isset($data['resource'])) {
+            $status = 'closed';
+        } else {
+            $data['resource'] = '';
+        }
+
         return $user->tickets()->create([
-            'title'   => $data['title'],
-            'status'  => 'open',
+            'title'    => $data['title'],
+            'resource' => $data['resource'],
+            'status'   => $status,
         ]);
     }
 

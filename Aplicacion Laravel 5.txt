@@ -1819,7 +1819,94 @@ class TicketTableSeeder extends Seeder
 }
 
 
-4.2. Configuracion de base de datos para el entorno de pruebas
 4.3. Desarrollo de pruebas unitarias para la creacion de tickets y recursos
+- tests/TicketTest.php
+class TicketTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    protected $title = 'Curso de VueJS';
+
+    public function testCreateTicket()
+    {
+        $user = seed('User');
+
+        $this->actingAs($user)
+            ->visit(route('ticket.create'))
+            ->type($this->title, 'title')
+            ->press('Enviar Solicitud');
+
+        $this->see($this->title);
+
+        $this->seeInDatabase('tickets', [
+            'title'  => $this->title,
+            'status' => 'open'
+        ]);
+    }
+}
+
+phpunit --filter TicketTest
+
+
 4.4. Desarrollo del feature de recursos guiado por pruebas unitarias
-4.5. Desarrollo de feature para cerrar tickets con TDD
+- database/migrations/2015_12_15_184605_add_link_to_tickets.php
+public function up()
+{
+    Schema::table('tickets', function (Blueprint $table) {
+        $table->string('resource')->nullable()->after('title');
+    });
+}
+
+php artisan migrate:refresh --seed
+
+- resources/views/tickets/create.blade.php
+<div class="form-group">
+    {!! Form::label('title', 'Título') !!}
+    {!! Form::textArea('title', old('title'), ['class' => 'form-control', 'size' => '30x5']) !!}
+
+    {!! Form::label('resource', 'Recurso') !!}
+    {!! Form::text('resource', old('resource'), ['class' => 'form-control']) !!}
+</div>
+
+- app/Entities/Ticket.php
+protected $fillable = [
+    'title', 'resource', 'status', 'user_id',
+];
+
+- app/Http/Controllers/TicketController.php
+public function store(Request $request, Guard $auth)
+{
+    $this->validate($request, [
+        'title'    => 'required|max:140',
+        'resource' => 'url',
+    ]);
+
+    $data = $request->all();
+
+    $ticket = $this->repository->openNewTicket($auth->user(), $data);
+
+    return redirect()->route('ticket.details', ['id' => $ticket->id]);
+}
+
+- app/Repositories/TicketRepository.php
+public function openNewTicket(User $user, $data)
+{
+    $status = 'open';
+
+    if (isset($data['resource'])) {
+        $status = 'closed';
+    } else {
+        $data['resource'] = '';
+    }
+
+    return $user->tickets()->create([
+        'title'    => $data['title'],
+        'resource' => $data['resource'],
+        'status'   => $status,
+    ]);
+}
+
+- resources/views/tickets/partials/status.blade.php
+@if(! $ticket->open)
+    <a class="btn btn-primary" href="{{ $ticket->resource }}" target="_blank">Recurso</a>
+@endif

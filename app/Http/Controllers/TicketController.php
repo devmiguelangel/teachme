@@ -67,7 +67,8 @@ class TicketController extends Controller
     public function store(Request $request, Guard $auth)
     {
         $this->validate($request, [
-            'title' => 'required|max:140',
+            'title'    => 'required|max:140',
+            'resource' => 'url',
         ]);
 
         $data = $request->all();
